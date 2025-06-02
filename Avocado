@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>School Subjects Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ffe600 0%, #000 100%);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        header {
+            background: #2d3e50;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            height: 70px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        nav {
+            display: flex;
+            gap: 25px;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1em;
+            transition: color 0.2s;
+        }
+        nav a:hover {
+            color: #ffd700;
+        }
+        #clock {
+            font-size: 1.1em;
+            letter-spacing: 1px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        main {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        section {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            margin-bottom: 40px;
+            padding: 32px 28px;
+        }
+        section h2 {
+            margin-top: 0;
+            color: #2d3e50;
+            border-bottom: 2px solid #e0e4ea;
+            padding-bottom: 8px;
+        }
+        #est-clock-bg {
+            position: fixed;
+            top: 30px;
+            right: 40px;
+            z-index: 20;
+            font-size: 2.2em;
+            color: #2d3e50;
+            background: rgba(255,255,255,0.7);
+            border-radius: 12px;
+            padding: 8px 22px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            box-shadow: 0 2px 12px #0002;
+            letter-spacing: 2px;
+        }
+        @media (max-width: 600px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                height: auto;
+                padding: 15px;
+            }
+            nav {
+                margin-top: 10px;
+                gap: 15px;
+            }
+            main {
+                padding: 0 5px;
+            }
+            section {
+                padding: 18px 8px;
+            }
+        }
+        #ai-character-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 9999 !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        /* Name tag styles */
+        #ai-bot-name {
+            margin-bottom: 8px;
+            padding: 4px 16px;
+            background: #2d3e50;
+            color: #ffe600;
+            border-radius: 8px 8px 16px 16px;
+            font-weight: bold;
+            font-size: 1.15em;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 10px #0002;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s, color 0.2s;
+        }
+        #ai-bot-name:hover {
+            background: #ffd700;
+            color: #2d3e50;
+        }
+        #ai-character-head {
+            width: 110px;
+            height: 110px;
+            background: #ffe600;
+            border: 4px solid #222;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 4px 24px #0004;
+            animation: head-bob 2.5s infinite ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+        }
+        #ai-character-head-inner {
+            width: 100px;
+            height: 100px;
+            background: #ffe600;
+            border-radius: 50%;
+            position: relative;
+        }
+        @keyframes head-bob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .ai-eye {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: #222;
+            border-radius: 50%;
+            top: 38px;
+            left: 28px;
+            box-shadow: 36px 0 0 0 #222;
+            animation: blink 4s infinite;
+        }
+        @keyframes blink {
+            0%, 92%, 100% { height: 18px; }
+            95% { height: 3px; }
+        }
+        .ai-mouth {
+            position: absolute;
+            width: 38px;
+            height: 18px;
+            left: 36px;
+            top: 70px;
+            border-bottom: 4px solid #222;
+            border-radius: 0 0 38px 38px;
+            animation: mouth-talk 2.5s infinite;
+        }
+        @keyframes mouth-talk {
+            0%, 100% { height: 18px; }
+            20% { height: 24px; }
+            40% { height: 10px; }
+            60% { height: 18px; }
+            80% { height: 22px; }
+        }
+        #ai-chat-box {
+            margin-top: 10px;
+            background: #fffbe6;
+            border: 2px solid #ffe600;
+            border-radius: 12px;
+            padding: 10px 14px;
+            min-width: 260px;
+            max-width: 340px;
+            font-size: 1em;
+            color: #222;
+            box-shadow: 0 2px 12px #0002;
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+            pointer-events: none;
+            transition: opacity 0.35s cubic-bezier(.4,2,.6,1), transform 0.35s cubic-bezier(.4,2,.6,1);
+            position: relative;
+            z-index: 10001;
+        }
+        #ai-character-head.ai-chat-open + #ai-chat-box,
+        #ai-chat-box.ai-chat-open {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="#math">Math</a>
+            <a href="#english">English</a>
+            <a href="#physical-science">Physical Science</a>
+            <a href="#social-studies">Social/World Studies</a>
+        </nav>
+        <div id="clock"></div>
+    </header>
+    <main>
+        <section id="math">
+            <h2>Math</h2>
+            <p>
+                Math is the language of logic, patterns, and problem-solving. In high school, you will progress from foundational algebra and geometry to advanced topics like trigonometry, statistics, and calculus.
+            </p>
+            <ul>
+                <li>
+                    Math:
+                    <select onchange="showGradeTopics(this, 'math')">
+                        <option value="">Select Grade</option>
+                        <option value="9">9th Grade</option>
+                        <option value="10">10th Grade</option>
+                        <option value="11">11th Grade</option>
+                        <option value="12">12th Grade</option>
+                    </select>
+                    <select id="math-topics" style="display:none;"></select>
+                </li>
+            </ul>
+        </section>
+        <section id="english">
+            <h2>English</h2>
+            <p>
+                English Language Arts builds your reading, writing, speaking, and critical thinking skills. Each year, you will explore literature from different cultures and eras, analyze texts, write essays, and improve your communication.
+            </p>
+            <ul>
+                <li>
+                    English:
+                    <select onchange="showGradeTopics(this, 'english')">
+                        <option value="">Select Grade</option>
+                        <option value="9">9th Grade</option>
+                        <option value="10">10th Grade</option>
+                        <option value="11">11th Grade</option>
+                        <option value="12">12th Grade</option>
+                    </select>
+                    <select id="english-topics" style="display:none;"></select>
+                </li>
+            </ul>
+        </section>
+        <section id="physical-science">
+            <h2>Physical Science</h2>
+            <p>
+                Physical Science explores the laws and properties of the non-living world. You will study physics, chemistry, astronomy, and earth science, learning about matter, energy, motion, forces, and the universe.
+            </p>
+            <ul>
+                <li>
+                    Physical Science:
+                    <select onchange="showGradeTopics(this, 'physical-science')">
+                        <option value="">Select Grade</option>
+                        <option value="9">9th Grade</option>
+                        <option value="10">10th Grade</option>
+                        <option value="11">11th Grade</option>
+                        <option value="12">12th Grade</option>
+                    </select>
+                    <select id="physical-science-topics" style="display:none;"></select>
+                </li>
+            </ul>
+        </section>
+        <section id="social-studies">
+            <h2>Social/World Studies</h2>
+            <p>
+                Social Studies helps you understand people, societies, and the world. You will learn about history, geography, government, economics, and cultures. Each grade covers new eras, regions, and global perspectives.
+            </p>
+            <ul>
+                <li>
+                    History:
+                    <select onchange="showGradeTopics(this, 'history')">
+                        <option value="">Select Grade</option>
+                        <option value="9">9th Grade</option>
+                        <option value="10">10th Grade</option>
+                        <option value="11">11th Grade</option>
+                        <option value="12">12th Grade</option>
+                    </select>
+                    <select id="history-topics" style="display:none;"></select>
+                </li>
+                <li>
+                    Geography:
+                    <select onchange="showGradeTopics(this, 'geography')">
+                        <option value="">Select Grade</option>
+                        <option value="9">9th Grade</option>
+                        <option value="10">10th Grade</option>
+                        <option value="11">11th Grade</option>
+                        <option value="12">12th Grade</option>
+                    </select>
+                    <select id="geography-topics" style="display:none;"></select>
+                </li>
+                <li>
+                    Civics:
+                    <select onchange="showGradeTopics(this, 'civics')">
+                        <option value="">Select Grade</option>
+                        <option value="9">9th Grade</option>
+                        <option value="10">10th Grade</option>
+                        <option value="11">11th Grade</option>
+                        <option value="12">12th Grade</option>
+                    </select>
+                    <select id="civics-topics" style="display:none;"></select>
+                </li>
+                <li>
+                    World Cultures:
+                    <select onchange="showGradeTopics(this, 'world-cultures')">
+                        <option value="">Select Grade</option>
+                        <option value="9">9th Grade</option>
+                        <option value="10">10th Grade</option>
+                        <option value="11">11th Grade</option>
+                        <option value="12">12th Grade</option>
+                    </select>
+                    <select id="world-cultures-topics" style="display:none;"></select>
+                </li>
+            </ul>
+        </section>
+    </main>
+    <section id="grade-calculator-section">
+        <h2>Grade Calculator</h2>
+        <div id="grade-calculator" style="margin-bottom:20px;">
+            <div style='max-width:500px;'>
+                <label>Current Overall Grade (%): <input type='number' id='gc-overall' min='0' max='100' step='0.01' /></label><br><br>
+                <label>Assignment Weight (% of total): <input type='number' id='gc-weight' min='0' max='100' step='0.01' /></label><br><br>
+                <label>Assignment Grade (%): <input type='number' id='gc-assignment' min='0' max='100' step='0.01' value='0' /></label><br><br>
+                <button onclick='calcNewGrade()'>Calculate New Overall</button>
+                <div id='gc-result' style='margin-top:10px;'></div>
+            </div>
+        </div>
+    </section>
+    <!-- AI Character with name tag -->
+    <div id="ai-character-container">
+        <div id="ai-bot-name" onclick="toggleAIChatBox()">Plort</div>
+        <div id="ai-character-head" onclick="toggleAIChatBox()">
+            <div id="ai-character-head-inner">
+                <div class="ai-eye"></div>
+                <div class="ai-mouth"></div>
+            </div>
+        </div>
+        <div id="ai-chat-box">Hello! I am Plort. How can I help you today?</div>
+    </div>
+    <script>
+        // Clock update
+        function updateClock() {
+            const now = new Date();
+            let h = now.getHours();
+            let m = now.getMinutes();
+            let s = now.getSeconds();
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12;
+            h = h ? h : 12;
+            m = m < 10 ? '0' + m : m;
+            s = s < 10 ? '0' + s : s;
+            document.getElementById('clock').textContent = `${h}:${m}:${s} ${ampm}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Toggle AI chat box function (for both name and head)
+        function toggleAIChatBox() {
+            const chatBox = document.getElementById('ai-chat-box');
+            const head = document.getElementById('ai-character-head');
+            if (chatBox.classList.contains('ai-chat-open')) {
+                chatBox.classList.remove('ai-chat-open');
+                head.classList.remove('ai-chat-open');
+            } else {
+                chatBox.classList.add('ai-chat-open');
+                head.classList.add('ai-chat-open');
+            }
+        }
+
+        // Grade calculator
+        function calcNewGrade() {
+            const overall = parseFloat(document.getElementById('gc-overall').value);
+            const weight = parseFloat(document.getElementById('gc-weight').value);
+            const assignment = parseFloat(document.getElementById('gc-assignment').value);
+            let result = '';
+            if (
+                isNaN(overall) || overall < 0 || overall > 100 ||
+                isNaN(weight) || weight <= 0 || weight > 100 ||
+                isNaN(assignment) || assignment < 0 || assignment > 100
+            ) {
+                result = 'Please enter valid numbers for all fields.';
+            } else {
+                // Calculate new overall: weighted average
+                const remainingWeight = 100 - weight;
+                const newOverall = ((overall * remainingWeight) + (assignment * weight)) / 100;
+                result = `Your new overall grade would be <strong>${newOverall.toFixed(2)}%</strong> if you score ${assignment}% on this assignment.`;
+            }
+            document.getElementById('gc-result').innerHTML = result;
+        }
+
+        // Sample grade/topic dropdown logic (simplified demo)
+        function showGradeTopics(select, subject) {
+            const grade = select.value;
+            const topicSelect = document.getElementById(subject + '-topics');
+            if (!grade) {
+                topicSelect.style.display = 'none';
+                topicSelect.innerHTML = '';
+                return;
+            }
+            // Demo topics
+            const topics = {
+                math: {
+                    9: ["Algebra I", "Linear Equations", "Basic Geometry"],
+                    10: ["Geometry", "Proofs", "Trigonometry Basics"],
+                    11: ["Algebra II", "Statistics"],
+                    12: ["Pre-Calculus", "Calculus"]
+                },
+                english: {
+                    9: ["Literature", "Grammar"],
+                    10: ["World Literature", "Research Papers"],
+                    11: ["American Literature", "Critical Analysis"],
+                    12: ["British Literature", "Advanced Composition"]
+                },
+                "physical-science": {
+                    9: ["Introduction to Physical Science"],
+                    10: ["Chemistry", "Periodic Table"],
+                    11: ["Physics", "Astronomy"],
+                    12: ["Advanced Physics", "Earth & Space Science"]
+                },
+                history: {
+                    9: ["Ancient Civilizations", "Middle Ages"],
+                    10: ["Modern World History"],
+                    11: ["US History"],
+                    12: ["Government & Politics"]
+                },
+                geography: {
+                    9: ["Physical Geography Basics"],
+                    10: ["Human Geography"],
+                    11: ["Regional Geography"],
+                    12: ["Environmental Issues"]
+                },
+                civics: {
+                    9: ["Foundations of Government"],
+                    10: ["Political Parties"],
+                    11: ["Law & Justice"],
+                    12: ["Comparative Governments"]
+                },
+                "world-cultures": {
+                    9: ["Cultural Basics"],
+                    10: ["Major Civilizations"],
+                    11: ["Globalization & Culture"],
+                    12: ["Case Studies by Region"]
+                }
+            };
+            const gradeTopics = topics[subject]?.[grade] || [];
+            topicSelect.innerHTML = '<option value="">Select Topic</option>' + gradeTopics.map(t => `<option>${t}</option>`).join('');
+            topicSelect.style.display = '';
+        }
+    </script>
+</body>
+</html>
